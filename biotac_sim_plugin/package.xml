@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="2">
+
+	<name>biotac_sim_plugin</name>
+	<version>1.0.0</version>
+	<description>Metapackage for in-hand pose estimation for the Shadow Dextereous hand</description>
+
+	<author email="vista17@student.sdu.dk">Victor Staven</author>
+	<maintainer email="vista17@student.sdu.dk">Victor Staven</maintainer>
+
+	<license>BSD</license>
+
+	<url type="repository">https://github.com/vmstavens/in_hand_pose_estimation</url>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<exec_depend>biotac_sim</exec_depend>
+	<exec_depend>biotac_sim_motorhand</exec_depend>
+	<exec_depend>biotac_sim_train</exec_depend>
+
+	<export>
+		<metapackage />
+	</export>
+
+</package>
