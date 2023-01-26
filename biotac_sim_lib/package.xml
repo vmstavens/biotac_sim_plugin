@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package format="2">
+    
+    <name>biotac_sim_lib</name>
+    <version>1.0.0</version>
+
+    <description>
+        Data-driven simulation of the BioTac touch sensors using artificial neural networks
+    </description>
+
+    <maintainer email="ruppel@informatik.uni-hamburg.de">Philipp
+        Ruppel</maintainer>
+    <author email="ruppel@informatik.uni-hamburg.de">Philipp Ruppel</author>
+
+    <license>BSD</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+
+    <depend>roscpp</depend>
+    <depend>ros_utils_cpp</depend>
+    <depend>eigen_conversions</depend>
+    <depend>sr_robot_msgs</depend>
+    <depend>gazebo_ros</depend>
+
+</package>

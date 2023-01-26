@@ -1,0 +1,252 @@
+<launch>
+
+	<!-- // Arguments ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+	<!-- Gazebo config -->
+
+	<!-- if the simulation should start paused -->
+	<arg name="paused" default="false" />
+	<!-- Tells ROS nodes asking for time to get the Gazebo-published simulation time, published over the ROS topic /clock (default true) -->
+	<arg name="use_sim_time" default="true" />
+	<!-- if gazebo should be launched to show the robot hand -->
+	<arg name="gui" default="true" />
+	<!-- if only terminal output is wanted -->
+	<arg name="headless" default="false" />
+	<!-- debugging info -->
+	<arg name="debug" default="false" />
+	<!-- ore verbose output -->
+	<arg name="verbose" default="true" />
+	<!-- set if gravity should be included -->
+	<arg name="gravity" default="false"/>
+	<!-- Whether to load a scene to restrain the movement of the robot -->
+	<arg name="scene" default="false"/>
+	<!-- Set world file -->
+	<arg name="world_name" default="$(find sr_tactile_perception)/worlds/sr_tac_percep_wo_g.world" if="$(eval not arg('gravity'))" />
+	<arg name="world_name" value="$(find sr_tactile_perception)/worlds/sr_tac_percep_wo_g.world"   if="$(arg gravity)" />
+	<!-- model path - props -->
+	<arg name="model_path" default="$(find sr_tactile_perception)/../models/"/>
+	<!-- load the biotac_sim_lib plugin -->
+	<arg name="biotac_sim" default="true"/>
+
+	<!-- Shadow config -->
+
+	<!-- if a ur arm is to be inclueded -->
+	<arg name="arm" default="false"/>
+	<!-- if a hand is to be included -->
+	<arg name="hand" default="true"/>
+	<!-- the robot state publisher publishing frequency  -->
+	<arg name="robot_state_pub_frequency" default="250"/>
+	<!-- the joint state publisher publishing frequency  -->
+	<arg name="joint_state_pub_frequency" default="125"/>
+	<!-- side is right -->
+	<arg name="side" default="right"/>
+	<!-- l or r depending on left or right -->
+	<arg name="side_letter" value="$(eval side[0])"/>
+	<!-- This launch file is for shadow hand only -->
+	<arg name="hand_id" value="$(arg side_letter)h"/>
+	<!-- Set to true if you want the robot to start in the "home" positions -->
+	<arg name="start_home" default="true"/>
+	<!-- home_angles must be input at the launch -->
+	<arg name="home_angles" default=""/>
+	<!-- finger labels, can also be set to all -->
+	<arg name="fingers" default="th,ff,mf,rf,lf"/>
+	<!-- ... -->
+	<arg name="mid_sensors" default="none"/>
+	<!-- ... -->
+	<arg name="prox_sensors" default="none"/>
+	<!-- sensors at the palm -->
+	<arg name="palm_sensor" default="none"/>
+	<!-- sensors at the finger tips -->
+	<arg name="tip_sensors" default="th=pst,ff=pst,mf=pst,rf=pst,lf=pst"/>
+	<!-- set to true if you want to use grasp controller -->
+	<arg name="grasp_controller" default="false"/>
+	<!-- set to true if you want to use hybrid controller -->
+	<arg name="hybrid_controller" default="false"/>
+
+
+	<!-- set to true to spawn the position controllers for the hands-->
+	<arg name="hand_ctrl" default="$(arg hand)"/>
+	<!-- set to true to spawn trajectory controllers for the hands(the trajectory controller overwrites continuously the joint position command, preventing direct control via topics-->
+	<arg name="hand_trajectory" default="true"/>
+	<!-- <arg name="hand_trajectory" default="false"/> -->
+	<!-- hand type, options: hand_e, hand_g or hand_c -->
+	<arg name="hand_type" default="hand_e"/>
+	<!-- set hand version dependent on hand_type  -->
+	<arg name="hand_version" default="E3M5" if="$(eval arg('hand_type') == 'hand_e')"/>
+	<arg name="hand_version" default="G1M5" if="$(eval arg('hand_type') == 'hand_g')"/>
+	<arg name="hand_version" default="C6M2" if="$(eval arg('hand_type') == 'hand_c')"/>
+	<!-- set hand serial number -->
+	<arg name="hand_serial" default="1234"/>
+	<!-- set hand init position -->
+	<arg name="init_pos" default="-x 0.0 -y 0.0 -z 0.01"/>
+	<!-- set hand init orientation -->
+	<arg name="init_ori" default="-R 0.0 -P 0.0 -Y 0.0"/>
+	<!-- set to 0 if the hand description will not be specified with the argument hand_description. In which case it depends on the environment variables -->
+	<arg name="set_hand_description" default="0" />
+	<!-- Xacro file containing the robot description we want to load. Only taken into acount if the set_description arg is set to 1 the default value -->
+	<arg name="hand_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro" />
+	<!-- Trajectory controllers partial name list for moveit-->
+	<arg if="$(eval not hand_trajectory)" name="trajectory_controllers_list_patterns" default="[]"/>
+	<arg if="$(eval hand_trajectory)" name="trajectory_controllers_list_patterns" default="[(rh|lh)_trajectory_controller/state]"/>
+	<!-- ik solver possible values sr_hand_kinematics/trac_ik/bio_ik -->
+	  <arg name="hand_ik_solver" default="sr_hand_kinematics"/>
+
+	<!-- Manipulator config -->
+
+	<!-- robot's name -->
+	<arg name="robot_name"  default="usrh" unless="$(arg arm)"/>
+	<!-- initial z value for base -->
+	<arg name="initial_z"   default="0.0"  unless="$(arg arm)"/>
+	<!-- initial y value for base -->
+	<arg name="initial_y"   default="0.0"  unless="$(arg arm)"/>
+	<!-- initial yaw value for base -->
+	<arg name="initial_yaw" default="0.0"  unless="$(arg arm)"/>
+	<!-- arm nameing prefix -->
+	<arg name="arm_prefix" value="$(arg side_letter)a"/>
+	<!-- whether to run arm controllers. -->
+	<arg name="arm_ctrl" default="$(arg arm)"/>
+	<!-- set to true to spawn trajectory controllers for the arms (the trajectory controller overwrites continuously the joint position command, preventing direct control via topics-->
+	<arg name="arm_trajectory" default="$(arg arm)"/>
+	<!-- set to true to spawn group position controllers for the arms -->
+	<arg name="arm_position" default="$(eval not arm_trajectory and arm)"/>
+	<!-- robot description related config-->
+	<arg name="robot_model" default="ur10e"/>
+	<!-- set robot name if the arm is included -->
+	<arg name="robot_name" default="$(arg robot_model)srh" if="$(arg arm)"/>
+	<!-- set initial z depending on if the arm is included -->
+	<arg name="initial_z" default="0.1" if="$(arg arm)"/>
+
+	<!-- load in extra arguments -->
+	<arg name="spawn_model_extra_args" value="-unpause $(arg home_angles)" if="$(arg start_home)" />
+	<arg name="spawn_model_extra_args" value="" unless="$(arg start_home)" />
+
+	<!-- // ROS Parameters ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+	<!-- !! experimental !!!!!!! -->
+	<param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
+	<param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
+
+	<!-- // Environment variables ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+	<!-- gazebo model path, where to find models -->
+	<env name="GAZEBO_MODEL_PATH" value="$GAZEBO_MODEL_PATH:$(arg model_path):$(find sr_description_common)/models/" />
+	<env name="GAZEBO_MODEL_DATABASE_URI" value="" />
+	<env name="MESH_WORKSPACE_PATH" value="$MESH_WORKSPACE_PATH:$(arg model_path):$(find sr_description_common)/models/" />
+
+	<!-- // Includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+	<!-- LOADING ROBOT DESCRIPTION-->
+	<include file="$(find biotac_sim_demo)/robots/load_robot_description.launch">
+		<!-- <include file="$(find sr_robot_launch)/launch/load_robot_description.launch"> -->
+		<arg name="sim" default="true"/>
+		<arg name="side" default="$(arg side)"/>
+		<arg name="arm" default="$(arg arm)"/>
+		<arg name="hand" value="$(arg hand)"/>
+		<arg name="robot_model" value="$(arg robot_model)"/>
+		<arg name="hand_type" value="$(arg hand_type)"/>
+		<arg name="hand_version" value="$(arg hand_version)"/>
+		<arg name="fingers" value="$(arg fingers)"/>
+		<arg name="tip_sensors" value="$(arg tip_sensors)"/>
+		<arg name="mid_sensors" value="$(arg mid_sensors)"/>
+		<arg name="prox_sensors" value="$(arg prox_sensors)"/>
+		<arg name="palm_sensor" value="$(arg palm_sensor)"/>
+		<arg name="initial_z" value="$(arg initial_z)"/>
+		<arg name="initial_y" value="$(arg initial_y)"/>
+		<arg name="initial_yaw" value="$(arg initial_yaw)"/>
+		<!-- added line -->
+		<arg name="biotac_sim" value="$(arg biotac_sim)"/>
+	</include>
+
+
+	<!-- Robot config -->
+	<arg if="$(eval arg('hand') and arg('arm'))" name="robot_config_file" default="$(find sr_multi_moveit_config)/config/robot_configs/$(arg side)_sh_$(arg robot_model).yaml"/>
+	<arg if="$(eval arg('hand') and not arg('arm'))" name="robot_config_file" default="$(find sr_multi_moveit_config)/config/robot_configs/$(arg side)_sh.yaml"/>
+	<arg if="$(eval not arg('hand') and arg('arm'))" name="robot_config_file" default="$(find sr_multi_moveit_config)/config/robot_configs/$(arg side)_$(arg robot_model).yaml"/>
+
+	<!-- Set robot config file path in a param in case moveit nodes need it -->
+	<param name="robot_config_file" value="$(arg robot_config_file)" type="str"/>
+
+	<!-- RUNNING THE SIMULATION -->
+	<!-- Mock hand data for simulation -->
+	<param name="/hand/mapping/0" value="$(arg hand_id)"/>
+	<param name="/hand/joint_prefix/0" value="$(arg hand_id)_"/>
+
+	<param name="/use_sim_time" value="true"/>
+
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+		<arg name="world_name" default="$(arg world_name)"/>
+		<arg name="gui" default="$(arg gui)"/>
+		<arg name="paused" value="$(arg paused)"/>
+		<arg name="debug" value="$(arg debug)"/>
+		<arg name="verbose" value="$(arg verbose)" />
+	</include>
+
+	<node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model $(arg robot_name) $(arg spawn_model_extra_args) $(arg init_pos) $(arg init_ori)" respawn="false" output="screen"/>
+
+	<include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch" >
+		<arg name="publish_rate" value="$(arg joint_state_pub_frequency)"/>
+	</include>
+
+	<!-- Robot state publisher -->
+	<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+		<param name="publish_frequency" type="double" value="$(arg robot_state_pub_frequency)"/>
+		<param name="tf_prefix" type="string" value="" />
+	</node>
+
+	<!-- ARM SPECIFIC -->
+	<group if="$(arg arm_trajectory)">
+		<rosparam file="$(find sr_robot_launch)/config/gazebo/controller/$(arg arm_prefix)_trajectory_controller.yaml" command="load"/>
+		<node name="arm_trajectory_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="$(arg arm_prefix)_trajectory_controller"/>
+	</group>
+
+	<group if="$(arg arm_position)">
+		<rosparam file="$(find sr_robot_launch)/config/gazebo/controller/$(arg arm_prefix)_group_position_controller.yaml" command="load"/>
+		<node name="arm_group_position_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="$(arg arm_prefix)_group_position_controller"/>
+	</group>
+
+	<!-- HAND SPECIFIC -->
+	<group if="$(eval arg('hand_type') == 'hand_e' or arg('hand_type') == 'hand_c')">
+		<rosparam if="$(eval not grasp_controller and not hybrid_controller)" command="load" file="$(find sr_description)/hand/config/$(arg hand_id)_controller_gazebo.yaml"/>
+		<rosparam if="$(arg grasp_controller)" command="load" file="$(find sr_description)/hand/config/$(arg hand_id)_grasp_controller_gazebo.yaml"/>
+		<rosparam if="$(arg hybrid_controller)" command="load" file="$(find sr_description)/hand/config/$(arg hand_id)_hybrid_controller_gazebo.yaml"/>
+	</group>
+
+	<group if="$(eval arg('hand_type') == 'hand_g')">
+		<rosparam unless="$(arg grasp_controller)" command="load" file="$(find sr_description)/hand/config/$(arg hand_id)_controller_gazebo.yaml"/>
+		<rosparam if="$(arg grasp_controller)" command="load" file="$(find sr_description)/hand/config/$(arg hand_id)_lite_grasp_controller_gazebo.yaml"/>
+	</group>
+
+	<group if="$(arg hand_ctrl)">
+		<arg if="$(arg grasp_controller)" name="hand_controller_group" default="grasp"/>
+		<arg if="$(arg hybrid_controller)" name="hand_controller_group" default="hybrid"/>
+		<arg if="$(eval hand_trajectory and not grasp_controller and not hybrid_controller)" name="hand_controller_group" default="trajectory"/>
+		<arg if="$(eval not hand_trajectory and not grasp_controller and not hybrid_controller)" name="hand_controller_group" default="position"/>
+		<node name="$(arg hand_id)_controller_spawner" pkg="sr_utilities" type="controller_spawner.py" output="screen">
+			<param name="controller_group" value="$(arg hand_controller_group)"/>
+		</node>
+	</group>
+
+
+	<!-- MOVEIT -->
+ <arg name="use_moveit" default="true"/>
+ <group if="$(arg use_moveit)">
+    <include file="$(find sr_moveit_hand_config)/launch/moveit_planning_and_execution.launch">
+      <arg name="hand_ik_solver" value="$(arg hand_ik_solver)"/>
+      <arg name="gui" value="$(arg gui)"/>
+      <arg name="trajectory_controllers_list" value="$(arg trajectory_controllers_list_patterns)"/>
+		</include>
+    <include file="$(find sr_moveit_hand_config)/launch/default_warehouse_db.launch"/>
+	</group>
+
+	<!-- Logging. -->
+  <include file="$(find sr_logging_common)/launch/sr_rosbag_log.launch">
+    <arg name="node_name" value="server_record"/>
+    <arg name="log_bag_prefix" value="sr_hand"/>
+    <arg name="log_directory" value="$(optenv HOME)/.ros/log"/>
+    <arg name="log_topics" value='-e ".*(controller|debug_etherCAT_data).*" /joint_states /rosout /diagnostics /mechanism_statistics /journalctl_log'/>
+	</include>
+
+	<!-- Publish underactuation error -->
+  <node name="error_reporter" pkg="sr_error_reporter" type="error_reporter" output="screen"/>
+
+</launch>
