@@ -26,7 +26,7 @@ To get started, simply clone the necessary [dependency](##Dependencies) and
 
 The project consists of two packages: [`biotac_sim_lib`](###`biotac_sim_lib`) and [`biotac_sim_demo`](###`biotac_sim_demo`).
 
-### `biotac_sim_lib`
+### [`biotac_sim_lib`](biotac_sim_lib/)
 The `biotac_sim_lib` package is responsible for generating the Gazebo model plugin for simulating the BioTac tactile sensor data. The package include the following header files
 1. [`biotac_sim_lib.hpp`](biotac_sim_lib/include/biotac_sim_lib/biotac_sim_lib.hpp) which is the header file containing the overall plugin structure.
 2. [`neural_network.hpp`](biotac_sim_lib/include/biotac_sim_lib/neural_network.hpp) which contains the `NeuralNetwork` class which is responsible for the deep learning part including loading and running the model.
@@ -35,7 +35,7 @@ The `biotac_sim_lib` package is responsible for generating the Gazebo model plug
 Furthermore, the package contains [`config/model.yaml`](biotac_sim_lib/config/model.yaml) which is the model architecture and trained parameters, [`scripts/set_default_model`](biotac_sim_lib/scripts/set_default_model) which sets the default model to the one mentioned previously and finally [`src/*`](biotac_sim_lib/src/) which contains the source files for the above mentioned headers. <par>
 
 This package is not meant to be run directly and therefore contains no `launch/example` files.
-### `biotac_sim_demo`
+### [`biotac_sim_demo`]((biotac_sim_demo/))
 
 The `biotac_sim_demo` package is responsible for running a demo of the `biotac_sim_lib`. This can only be done in the Shadow Dexterous docker container environment, which can be installed as instructed [here](https://dexterous-hand.readthedocs.io/en/latest/user_guide/1_4_simulated_hand_gazebo.html). <par>
 
