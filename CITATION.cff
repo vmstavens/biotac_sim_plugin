@@ -5,7 +5,7 @@ authors:
   given-names: "Victor"
 title: "biotac_sim_plugin"
 version: 1.0.0
-date-released: 2023-31-01
+date-released: "2023-31-01"
 url: "https://github.com/vmstavens/biotac_sim_plugin"
 references:
   - authors:
