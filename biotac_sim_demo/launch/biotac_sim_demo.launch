@@ -14,10 +14,8 @@
 	
 	<!-- use hand in simulation -->
 	<arg name="hand" default="true" />
-	<!-- position of the hand's spawn point -->
-	<arg name="init_pos" default="-x 0.0 -y 0.0 -z 1.0" />
-	<!-- orientation of the hand's spawn point, measured radians in WORLD Roll-Pitch-Yaw (1.57 = pi/2 = 90 deg)  -->
-	<arg name="init_ori" default="-R 1.57 -P -1.57 -Y 0.0" />
+	<!-- should a arm be included -->
+	<arg name="arm" value="false" />
 	<!-- biotac -->
 	<arg name="biotac" default="true" />
 	<arg if="$(arg biotac)" name="tip_sensors" value="bt_sp" />
@@ -29,36 +27,47 @@
 
 	<!-- // World specific arguments ///////////////////////////////////////////////////////////////////////// -->
 
-	<!-- gravity is disabled in order to make probing simpler -->
-	<arg name="gravity" default="false" />
-	<arg name="model_path" default="$(find biotac_sim_demo)/models/" />
+	<!-- model path and model to spawn -->
+	<arg name="model_path" default="$(find biotac_sim_demo)/../models/" />
+	<!-- which model you wisht to touch (cube, sphere or pen_black) -->
+	<arg name="prop" default="cube"/>
+	<!-- the pose of the  -->
+	<arg name="prop_pose" default="-x 0.134796 -y -0.281485 -z 0.991616 -R 0.0 -P 0.0 -Y 0.0" />
+	<!-- spawn the prop -->
+	<node name="spawn_prop" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-file $(arg model_path)$(arg prop)/model.sdf -sdf $(arg prop_pose) -model $(arg prop)" />
 
 	<!-- // Launch project nodes ///////////////////////////////////////////////////////////////////////// -->
 
 	<!-- biotac_sim_demo node -->
 	<node pkg="biotac_sim_demo" name="biotac_sim_example" type="biotac_sim_demo.py" output="$(arg output)" />
 
-	<!-- // Load in world ///////////////////////////////////////////////////////////////////////// -->
+	<!-- // Environment variables ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 
-	<!-- gravity -->
-	<arg if="$(arg gravity)" name="world_name" value="$(find biotac_sim_demo)/worlds/biotac_sim_demo_w_g.world" />
-	<!-- no gravity -->
-	<arg unless="$(arg gravity)" name="world_name" value="$(find biotac_sim_demo)/worlds/biotac_sim_demo_wo_g.world" />
+	<!-- gazebo model path, where to find models -->
+	<env name="GAZEBO_MODEL_PATH"         value="$GAZEBO_MODEL_PATH:$(arg model_path):$(find sr_description_common)/models/" />
+	<env name="GAZEBO_MODEL_DATABASE_URI" value="" />
+	<env name="MESH_WORKSPACE_PATH"       value="$MESH_WORKSPACE_PATH:$(arg model_path):$(find sr_description_common)/models/" />
 
 	<!-- // Load in simulation models ///////////////////////////////////////////////////////////////////////// -->
 
 	<!-- add shadow hand model -->
 	<include file="$(find biotac_sim_demo)/robots/shadow_hand.launch">
-		<arg name="gui" value="$(arg gui)"/>
-		<arg name="arm" value="false"/>
-		<arg name="hand" value="true"/>
-		<arg name="start_home" value="$(arg start_home)"/>
-		<arg name="init_pos" value="$(arg init_pos)"/>
-		<arg name="init_ori" value="$(arg init_ori)"/>
-		<arg name="world_name" value="$(arg world_name)"/>
-		<arg name="tip_sensors" value="$(arg tip_sensors)"/>
-		<arg name="model_path" value="$(arg model_path)"/>
-		<arg name="biotac_sim" value="$(arg biotac_sim)" />
+		<arg name="gui"         value="$(arg gui)" />
+		<arg name="arm"         value="false" />
+		<arg name="hand"        value="true" />
+		<arg name="start_home"  value="$(arg start_home)" />
+		<arg name="tip_sensors" value="$(arg tip_sensors)" />
+		<arg name="biotac_sim"  value="$(arg biotac_sim)" />
+	</include>
+
+	<!-- // Load in world ///////////////////////////////////////////////////////////////////////// -->
+
+	<arg name="world_name" value="$(find biotac_sim_demo)/../worlds/biotac_sim_demo.world" />
+
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+		<arg name="world_name" value="$(arg world_name)" />
+		<arg name="gui"        value="$(arg gui)" />
+		<arg name="paused"     value="$(arg paused)" />
 	</include>
 
 </launch>

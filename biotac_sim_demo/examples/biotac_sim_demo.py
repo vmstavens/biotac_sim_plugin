@@ -10,6 +10,7 @@ from sr_robot_commander.sr_hand_commander import SrHandCommander
 from sr_utilities.hand_finder import HandFinder
 
 def callback(data: ContactsState):
+	rospy.sleep(1)
 	rospy.loginfo(rospy.get_name() + " I heard " + str(data.states))
 
 
@@ -57,7 +58,7 @@ def main() -> None:
 		rospy.logerr(f"failed to set joint value {q}...")
 
 	# subscribe and print the found contacts
-	sub = rospy.Subscriber("/contacts/rh_ff/distal", ContactsState, callback=callback)
+	sub = rospy.Subscriber("/contacts/rh_ff/distal", ContactsState, callback=callback,queue_size=1)
 
 	# keep node alive
 	keep_alive(rospy.get_name())
