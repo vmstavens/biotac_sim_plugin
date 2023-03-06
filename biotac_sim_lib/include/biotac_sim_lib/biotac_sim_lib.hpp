@@ -24,7 +24,7 @@
 
 namespace gazebo 
 {
-class SimBiotacPlugin : public ModelPlugin
+class BiotacSimPlugin : public ModelPlugin
 {
 	// template class member 
 	template <class T> class 
@@ -102,5 +102,5 @@ public:
 	OnUpdate(const common::UpdateInfo &_info);
 	
 };
-GZ_REGISTER_MODEL_PLUGIN(SimBiotacPlugin)
+GZ_REGISTER_MODEL_PLUGIN(BiotacSimPlugin)
 };

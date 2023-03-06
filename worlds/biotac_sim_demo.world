@@ -24,7 +24,7 @@
 	<physics type="ode">
 		
 		<!-- disable gravity -->
-		<gravity>0.000000 0.000000 0.00000001</gravity>
+		<gravity>0.000000 0.000000 -0.00000001</gravity>
 
 		<ode>
 		<solver>

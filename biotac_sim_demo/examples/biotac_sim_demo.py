@@ -8,6 +8,7 @@ from gazebo_msgs.msg import ContactsState
 import time
 from sr_robot_commander.sr_hand_commander import SrHandCommander
 from sr_utilities.hand_finder import HandFinder
+import rosnode
 
 def callback(data: ContactsState):
 	rospy.sleep(1)
@@ -16,10 +17,15 @@ def callback(data: ContactsState):
 
 def main() -> None:
 
-	# waiting period for robot hand to start up...
-	waiting_time: int = 5  # s
-	rospy.loginfo(f"waiting {waiting_time} for hand to start...")
-	time.sleep(waiting_time)
+	# wait for rviz-/move_group node to be initiated such that the hand can be communicated with
+	timeout = 10
+	t = 0
+	while not rosnode.get_node_names().count("/move_group"):
+		rospy.sleep(1)
+		rospy.logwarn(f"Waiting for /move_group to be initiated such that a connection to the Shadow Dexterous Hand can be made... Timeout {t}/{timeout} s...")
+		t += 1
+		if t >= timeout:
+			rospy.logerr("Failed to find /move_group and could therefore not connect to Shadow Dexterous Hand...")
 
 	# hand finder - gets data from the found hand(s)
 	hand_finder: HandFinder = HandFinder()

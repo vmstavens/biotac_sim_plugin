@@ -142,7 +142,6 @@
 	<!-- Mock hand data for simulation -->
 	<param name="/hand/mapping/0" value="$(arg hand_id)"/>
 	<param name="/hand/joint_prefix/0" value="$(arg hand_id)_"/>
-
 	<param name="/use_sim_time" value="true"/>
 
 	<!-- spawn the shadow dexterous hand -->
@@ -152,6 +151,7 @@
 			args="-urdf -param robot_description -model $(arg robot_name) $(arg spawn_model_extra_args) $(arg hand_pose)" 
 			respawn="false" 
 			output="screen"/>
+			<!-- args="-urdf -param robot_description -model $(arg robot_name)"  -->
 
 	<include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch" >
 		<arg name="publish_rate" value="$(arg joint_state_pub_frequency)"/>
@@ -195,7 +195,6 @@
 			<param name="controller_group" value="$(arg hand_controller_group)"/>
 		</node>
 	</group>
-
 
 	<!-- MOVEIT -->
 	<arg name="use_moveit" default="true"/>

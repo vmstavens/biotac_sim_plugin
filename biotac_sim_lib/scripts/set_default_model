@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-cp $1 `rospack find sim_biotac`/config/model.yaml
+cp $1 `rospack find biotac_sim_lib`/config/model.yaml

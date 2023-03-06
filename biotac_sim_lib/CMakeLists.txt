@@ -27,9 +27,6 @@ include_directories(include
     ${EIGEN3_INCLUDE_DIRS}
 )
 
-message(gazabo dir ${GAZEBO_INCLUDE_DIRS})
-message(gazabo dir ${GAZEBO_ROS_INCLUDE_DIRS})
-
 link_directories(
     ${GAZEBO_LIBRARY_DIRS}
 )

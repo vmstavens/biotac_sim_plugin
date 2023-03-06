@@ -23,7 +23,7 @@
 
 #include "biotac_sim_lib/biotac_sim_lib.hpp"
 
-void gazebo::SimBiotacPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_sdf*/)
+void gazebo::BiotacSimPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_sdf*/)
 {
 
 	this->model = _model;
@@ -31,7 +31,7 @@ void gazebo::SimBiotacPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_
 
 	ROS_INFO("GazeboRosTouch::Load");
 
-	this->updateConnection = event::Events::ConnectWorldUpdateBegin(boost::bind(&SimBiotacPlugin::OnUpdate, this, _1));
+	this->updateConnection = event::Events::ConnectWorldUpdateBegin(boost::bind(&BiotacSimPlugin::OnUpdate, this, _1));
 
 	std::vector<std::string> collisions;
 
@@ -48,7 +48,7 @@ void gazebo::SimBiotacPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr /*_
 	std::string topic = contactManager->CreateFilter("gazebo_ros_touch", collisions);
 }
 
-void gazebo::SimBiotacPlugin::OnUpdate(const common::UpdateInfo &_info)
+void gazebo::BiotacSimPlugin::OnUpdate(const common::UpdateInfo &_info)
 {
 	helpers::ProfilerScope profilerScope(updateProfiler);
 
@@ -133,9 +133,8 @@ void gazebo::SimBiotacPlugin::OnUpdate(const common::UpdateInfo &_info)
 					touch.point = fingerToSensorTransforms[fingerIndex].inverse() * ros_utils_cpp::Eigen::make_tf(model->GetLink(fingerLinkName)->WorldPose()).inverse() * ros_utils_cpp::Eigen::make_tf(contact->positions[pointIndex]).translation();
 					// touch.point = fingerToSensorTransforms[fingerIndex].inverse() * ros_utils_cpp::Eigen::make_tf(model->GetLink(fingerLinkName)->GetWorldPose()).inverse() * ros_utils_cpp::Eigen::make_tf(contact->positions[pointIndex]);
 
-					// wtf is going ooooooooooon
 					// f_t [3x1] = R [3x3] * f [3x1]
-					// force *= -1.0 // how to do this?
+					// force *= -1.0
 					touch.force = fingerToSensorTransforms[fingerIndex].inverse().rotation() * ( -force.translation());
 					fingerTouches[fingerIndex].push_back(touch);
 				}

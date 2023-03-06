@@ -158,7 +158,7 @@ struct SensorModel
 
 	SensorModel() 
 	{ 
-		neuralNetwork.load(ros::package::getPath("sim_biotac") + "/config/model.yaml"); 
+		neuralNetwork.load(ros::package::getPath("biotac_sim_lib") + "/config/model.yaml"); 
 	}
 
 	Profiler inferenceProfiler{"inference"};
