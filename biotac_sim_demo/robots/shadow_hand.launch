@@ -67,35 +67,36 @@
 	<!-- Xacro file containing the robot description we want to load. Only taken into acount if the set_description arg is set to 1 the default value -->
 	<arg name="hand_description" default="$(find sr_description)/robots/shadowhand_motor.urdf.xacro" />
 	<!-- Trajectory controllers partial name list for moveit-->
-	<arg if="$(eval not hand_trajectory)" name="trajectory_controllers_list_patterns" default="[]"/>
-	<arg if="$(eval hand_trajectory)" name="trajectory_controllers_list_patterns" default="[(rh|lh)_trajectory_controller/state]"/>
+	<arg if="$(eval not hand_trajectory)" name="trajectory_controllers_list_patterns" default="[]" />
+	<arg if="$(eval hand_trajectory)" name="trajectory_controllers_list_patterns"
+		default="[(rh|lh)_trajectory_controller/state]" />
 	<!-- ik solver possible values sr_hand_kinematics/trac_ik/bio_ik -->
-	  <arg name="hand_ik_solver" default="sr_hand_kinematics"/>
+	<arg name="hand_ik_solver" default="sr_hand_kinematics" />
 
 	<!-- Manipulator config -->
 
 	<!-- robot's name -->
-	<arg name="robot_name"  default="usrh" unless="$(arg arm)"/>
+	<arg name="robot_name" default="usrh" unless="$(arg arm)" />
 	<!-- initial z value for base -->
-	<arg name="initial_z"   default="0.0"  unless="$(arg arm)"/>
+	<arg name="initial_z" default="0.0" unless="$(arg arm)" />
 	<!-- initial y value for base -->
-	<arg name="initial_y"   default="0.0"  unless="$(arg arm)"/>
+	<arg name="initial_y" default="0.0" unless="$(arg arm)" />
 	<!-- initial yaw value for base -->
-	<arg name="initial_yaw" default="0.0"  unless="$(arg arm)"/>
+	<arg name="initial_yaw" default="0.0" unless="$(arg arm)" />
 	<!-- arm nameing prefix -->
-	<arg name="arm_prefix" value="$(arg side_letter)a"/>
+	<arg name="arm_prefix" value="$(arg side_letter)a" />
 	<!-- whether to run arm controllers. -->
-	<arg name="arm_ctrl" default="$(arg arm)"/>
+	<arg name="arm_ctrl" default="$(arg arm)" />
 	<!-- set to true to spawn trajectory controllers for the arms (the trajectory controller overwrites continuously the joint position command, preventing direct control via topics-->
-	<arg name="arm_trajectory" default="$(arg arm)"/>
+	<arg name="arm_trajectory" default="$(arg arm)" />
 	<!-- set to true to spawn group position controllers for the arms -->
-	<arg name="arm_position" default="$(eval not arm_trajectory and arm)"/>
+	<arg name="arm_position" default="$(eval not arm_trajectory and arm)" />
 	<!-- robot description related config-->
-	<arg name="robot_model" default="ur10e"/>
+	<arg name="robot_model" default="ur10e" />
 	<!-- set robot name if the arm is included -->
-	<arg name="robot_name" default="$(arg robot_model)srh" if="$(arg arm)"/>
+	<arg name="robot_name" default="$(arg robot_model)srh" if="$(arg arm)" />
 	<!-- set initial z depending on if the arm is included -->
-	<arg name="initial_z" default="0.1" if="$(arg arm)"/>
+	<arg name="initial_z" default="0.1" if="$(arg arm)" />
 
 	<!-- load in extra arguments -->
 	<arg if="$(arg start_home)" name="spawn_model_extra_args" value="-unpause $(arg home_angles)" />
@@ -103,8 +104,10 @@
 
 	<!-- // ROS Parameters ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 
-	<param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)"/>
-	<param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_"/>
+	<param name="/hand/mapping/$(arg hand_serial)" value="$(arg hand_id)" />
+	<param name="/hand/joint_prefix/$(arg hand_serial)" value="$(arg hand_id)_" />
+	<!-- upload biotac_sim availablility to ros parameter server to be read by ShadowHand python class -->
+	<param name="biotac_sim" type="bool" value="$(arg biotac_sim)" />
 
 	<!-- // Includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 
@@ -151,7 +154,7 @@
 			args="-urdf -param robot_description -model $(arg robot_name) $(arg spawn_model_extra_args) $(arg hand_pose)" 
 			respawn="false" 
 			output="screen"/>
-			<!-- args="-urdf -param robot_description -model $(arg robot_name)"  -->
+	<!-- args="-urdf -param robot_description -model $(arg robot_name)"  -->
 
 	<include file="$(find ros_ethercat_model)/launch/joint_state_publisher.launch" >
 		<arg name="publish_rate" value="$(arg joint_state_pub_frequency)"/>
@@ -204,7 +207,7 @@
 			<arg name="hand_ik_solver" value="$(arg hand_ik_solver)"/>
 			<arg name="gui" value="$(arg gui)"/>
 			<arg name="trajectory_controllers_list" value="$(arg trajectory_controllers_list_patterns)"/>
-			</include>
+		</include>
 		<include file="$(find sr_moveit_hand_config)/launch/default_warehouse_db.launch"/>
 	</group>
 

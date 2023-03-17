@@ -42,9 +42,6 @@
 
 	<!-- // Launch project nodes ///////////////////////////////////////////////////////////////////////// -->
 
-	<!-- upload biotac_sim availablility to ros parameter server to be read by ShadowHand python class -->
-	<param name="biotac_sim" type="bool" value="$(arg biotac_sim)" />
-
 	<!-- biotac_sim_demo node -->
 	<node pkg="biotac_sim_demo" name="biotac_sim_demo" type="biotac_sim_demo.py" output="$(arg output)" />
 
