@@ -61,7 +61,7 @@ Outside of standard ROS and Gazebo packages, the following dependency is needed
 
 ## Acknowledgments
 
-This work is based on the [biotac_gezebo_plugin](https://github.com/TAMS-Group/biotac_gazebo_plugin) by Philipp Ruppel, Yannick Jonetzko, Michael Görner, Norman Hendrich and Jianwei Zhang - Simulation of the SynTouch BioTac Sensor, The 15th International Conference on Intelligent Autonomous Systems, IAS-15 2018, Baden Baden, Germany. <par>
+This work is based on the [biotac_gazebo_plugin](https://github.com/TAMS-Group/biotac_gazebo_plugin) by Philipp Ruppel, Yannick Jonetzko, Michael Görner, Norman Hendrich and Jianwei Zhang - Simulation of the SynTouch BioTac Sensor, The 15th International Conference on Intelligent Autonomous Systems, IAS-15 2018, Baden Baden, Germany. <par>
 
 The data set used to train the deep learning model can be found [here](https://tams.informatik.uni-hamburg.de/research/datasets/index.php#biotac_single_contact_response) <par>
 
